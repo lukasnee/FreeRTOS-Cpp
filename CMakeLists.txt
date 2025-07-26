@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(BUILD_EXAMPLES OFF CACHE BOOL "Build examples")
+
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 # C++ Standard
@@ -12,6 +14,10 @@ project(FreeRTOS-Cpp)
 ## FreeRTOS-Cpp Interface ##
 set(FREERTOS_CPP_PATH ${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-Cpp)
 add_subdirectory(${FREERTOS_CPP_PATH})
+
+if(NOT BUILD_EXAMPLES)
+    return()
+endif()
 
 ## FreeRTOS Kernel Config ##
 # Include the FreeRTOS kernel and configure it for the ARM M0 port so the examples will compile.
