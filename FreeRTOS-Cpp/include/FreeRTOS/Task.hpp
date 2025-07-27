@@ -30,6 +30,7 @@
 
 #include <FreeRTOS/Kernel.hpp>
 #include <bitset>
+#include <chrono>
 #include <utility>
 
 #include "FreeRTOS.h"
@@ -1161,6 +1162,47 @@ class TaskBase {
    */
   inline static void delay(const TickType_t ticksToDelay = 0) {
     vTaskDelay(ticksToDelay);
+  }
+
+  /**
+   * Task.hpp
+   *
+   * @brief Function that calls <tt>void vTaskDelay( const TickType_t
+   * xTicksToDelay )</tt>
+   *
+   * @see <https://www.freertos.org/a00127.html>
+   *
+   * INCLUDE_vTaskDelay must be defined as 1 for this function to be available.
+   * See the configuration section for more information.
+   *
+   * Delay a task for a given number of time.
+   *
+   * delay() specifies a time at which the task wishes to unblock relative to
+   * the time at which delay() is called.  For example, specifying a block
+   * period of 100ms will cause the task to unblock 100ms after delay()
+   * is called. delay() does not therefore provide a good method of controlling
+   * the frequency of a periodic task as the path taken through the code, as
+   * well as other task and interrupt activity, will affect the frequency at
+   * which delay() gets called and therefore the time at which the task next
+   * executes.  See delayUntil() for an alternative API function designed to
+   * facilitate fixed frequency execution.  It does this by specifying an
+   * absolute time (rather than a relative time) at which the calling task
+   * should unblock.
+   *
+   * @tparam std::chrono Rep, an arithmetic type, or a class emulating an
+   * arithmetic type, representing the number of ticks
+   * @tparam std::chrono Period, a std::ratio representing the tick period (i.e.
+   * the number of second's fractions per tick)
+   * @param timeToDelay The amount of time that the task should block.
+   *
+   * <b>Example Usage</b>
+   * @include Task/delay.cpp
+   */
+  template <typename Rep, typename Period>
+  inline static void delay(const std::chrono::duration<Rep, Period>&
+                               timeToDelay = std::chrono::milliseconds(0)) {
+    using namespace std::chrono;
+    delay(pdMS_TO_TICKS(duration_cast<milliseconds>(timeToDelay).count()));
   }
 #endif /* INCLUDE_vTaskDelay */
 
