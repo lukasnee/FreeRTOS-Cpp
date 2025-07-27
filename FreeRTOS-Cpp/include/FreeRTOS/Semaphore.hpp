@@ -28,6 +28,8 @@
 #ifndef FREERTOS_SEMAPHORE_HPP
 #define FREERTOS_SEMAPHORE_HPP
 
+#include <chrono>
+
 #include "FreeRTOS.h"
 #include "semphr.h"
 
@@ -124,6 +126,40 @@ class SemaphoreBase {
    */
   inline bool take(const TickType_t ticksToWait = portMAX_DELAY) const {
     return (xSemaphoreTake(handle, ticksToWait) == pdTRUE);
+  }
+
+  /**
+   * Semaphore.hpp
+   *
+   * @brief Function that calls <tt>xSemaphoreTake( SemaphoreHandle_t
+   * xSemaphore, TickType_t xTicksToWait )</tt>
+   *
+   * @see <https://www.freertos.org/a00122.html>
+   *
+   * Function to obtain a semaphore.
+   *
+   * This macro must not be called from an ISR. takeFromISR() can be used to
+   * take a semaphore from within an interrupt if required, although this would
+   * not be a normal operation. Semaphores use queues as their underlying
+   * mechanism, so functions are to some extent interoperable.
+   *
+   * @tparam std::chrono Rep, an arithmetic type, or a class emulating an
+   * arithmetic type, representing the number of ticks
+   * @tparam std::chrono Period, a std::ratio representing the tick period (i.e.
+   * the number of second's fractions per tick)
+   * @param timeToWait The time to wait for the semaphore to become
+   * available. A block time of zero can be used to poll the semaphore.
+   * @retval true If the semaphore was obtained.
+   * @retval false If timeToWait expired without the semaphore becoming
+   * available.
+   *
+   * <b>Example Usage</b>
+   * @include Semaphore/take.cpp
+   */
+  template <typename Rep, typename Period>
+  inline bool take(const std::chrono::duration<Rep, Period>& timeToWait) const {
+    using namespace std::chrono;
+    return take(pdMS_TO_TICKS(duration_cast<milliseconds>(timeToWait).count()));
   }
 
   /**
