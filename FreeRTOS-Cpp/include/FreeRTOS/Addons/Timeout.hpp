@@ -51,6 +51,10 @@ class Timeout {
     return Clock::duration::max();
   }
 
+  Timeout() : duration{max()} {
+    this->initialTimePoint = Clock::now();
+  }
+
   template <typename Rep, typename Period>
   Timeout(const std::chrono::duration<Rep, Period> &duration = max())
       : duration{std::chrono::duration_cast<Clock::duration>(duration)} {
