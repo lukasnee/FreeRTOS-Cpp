@@ -160,6 +160,20 @@ inline void yield() {
   taskYIELD();
 }
 
+#ifdef portYIELD_FROM_ISR
+/**
+ * Kernel.hpp
+ *
+ * @brief Function that calls <tt>taskYIELD_FROM_ISR()</tt>
+ *
+ * @param switchRequired Context switch is required, or false if a context
+ * switch is not required. Relates to `higherPriorityTaskWoken` 
+ */
+inline void yieldFromISR(const bool &switchRequired) {
+  portYIELD_FROM_ISR(switchRequired);
+}
+#endif /* portYIELD_FROM_ISR */
+
 /**
  * Kernel.hpp
  *
