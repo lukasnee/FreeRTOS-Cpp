@@ -1250,6 +1250,57 @@ class TaskBase {
   inline bool delayUntil(const TickType_t timeIncrement = 0) {
     return (xTaskDelayUntil(&previousWakeTime, timeIncrement) == pdTRUE);
   }
+
+  /**
+   * Task.hpp
+   *
+   * @brief Function that calls <tt>BaseType_t xTaskDelayUntil( TickType_t
+   * *pxPreviousWakeTime, const TickType_t xTimeIncrement )</tt>
+   *
+   * @see <https://www.freertos.org/xtaskdelayuntiltask-control.html>
+   *
+   * INCLUDE_xTaskDelayUntil must be defined as 1 for this function to be
+   * available.  See the configuration section for more information.
+   *
+   * Delay a task until a specified time.  This function can be used by periodic
+   * tasks to ensure a constant execution frequency.
+   *
+   * This function differs from delay() in one important aspect:  delay() will
+   * cause a task to block for the specified number of ticks from the time delay
+   * () is called.  It is therefore difficult to use delay() by itself to
+   * generate a fixed execution frequency as the time between a task starting to
+   * execute and that task calling delay() may not be fixed [the task may take a
+   * different path though the code between calls, or may get interrupted or
+   * preempted a different number of times each time it executes].
+   *
+   * Whereas delay() specifies a wake time relative to the time at which the
+   * function is called, delayUntil() specifies the absolute (exact) time at
+   * which it wishes to unblock.
+   *
+   * The function pdMS_TO_TICKS() can be used to calculate the number of ticks
+   * from a time specified in milliseconds with a resolution of one tick period.
+   *
+   * @tparam std::chrono Rep, an arithmetic type, or a class emulating an
+   * arithmetic type, representing the number of ticks
+   * @tparam std::chrono Period, a std::ratio representing the tick period (i.e.
+   * the number of second's fractions per tick)
+   * @param timeIncrement The cycle time period. The task will be unblocked at
+   * time (previousWakeTime + timeIncrement). Calling delayUntil() with the same
+   * timeIncrement parameter value will cause the task to execute with a fixed
+   * interval period.
+   * @return true If the task way delayed.
+   * @return false Otherwise.  A task will not be delayed if the next expected
+   * wake time is in the past.
+   * <b>Example Usage</b>
+   * @include Task/delayUntil.cpp
+   */
+  template <typename Rep, typename Period>
+  inline bool delayUntil(const std::chrono::duration<Rep, Period>&
+                             timeIncrement = std::chrono::milliseconds(0)) {
+    using namespace std::chrono;
+    return delayUntil(
+        pdMS_TO_TICKS(duration_cast<milliseconds>(timeIncrement).count()));
+  }
 #endif /* INCLUDE_xTaskDelayUntil */
 
   /**
