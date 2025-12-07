@@ -31,6 +31,8 @@
 
 #include <FreeRTOS/Kernel.hpp>
 #include <chrono>
+#include <ctime>
+#include <utility>
 
 namespace FreeRTOS::Addons {
 
@@ -97,8 +99,36 @@ struct Clock {
                              ? Kernel::getTickCount()
                              : Kernel::getTickCountFromISR());
   }
-};
 
+  static time_t to_time_t(const time_point& t) noexcept {
+    using namespace std::chrono;
+    return duration_cast<seconds>(t.time_since_epoch()).count();
+  }
+
+  static bool to_utc_tm(const time_point& t, std::tm* tm_buf) noexcept {
+    time_t tt = to_time_t(t);
+    return gmtime_r(&tt, tm_buf) != nullptr;
+  }
+
+  static std::tm to_utc_tm(const time_point& t) noexcept {
+    std::tm tm_buf;
+    to_utc_tm(t, &tm_buf);
+    return tm_buf;
+  }
+
+  /**
+   * @brief Converts a time_point to UTC std::tm and remainder duration.
+   *
+   * @param t
+   * @retval std::pair<std::tm, duration>
+   */
+  static std::pair<std::tm, duration> to_utc_tm_rem(
+      const time_point& t) noexcept {
+    return {to_utc_tm(t),
+            t.time_since_epoch() -
+                duration_cast<std::chrono::seconds>(t.time_since_epoch())};
+  }
+};
 }  // namespace FreeRTOS::Addons
 
 #endif  // FREERTOS_ADDONS_CLOCK_HPP
