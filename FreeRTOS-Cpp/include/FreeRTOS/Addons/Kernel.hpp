@@ -38,6 +38,10 @@ bool isInsideInterrupt() {
   return xPortIsInsideInterrupt() != pdFALSE;
 }
 
+const char *getCurrentTaskName() {
+  return pcTaskGetName(nullptr);
+}
+
 }  // namespace FreeRTOS::Addons::Kernel
 
 #endif  // FREERTOS_ADDONS_KERNEL_HPP
